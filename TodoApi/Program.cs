@@ -18,7 +18,7 @@ namespace TodoApi
 
         public static void Main(string[] args)
         {
-            ProcessRepositories().Wait();
+            //ProcessRepositories().Wait();
             BuildWebHost(args).Run();
         }
 
