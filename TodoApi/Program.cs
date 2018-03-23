@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -12,8 +14,11 @@ namespace TodoApi
 {
     public class Program
     {
+        private static readonly HttpClient client = new HttpClient();
+
         public static void Main(string[] args)
         {
+            ProcessRepositories().Wait();
             BuildWebHost(args).Run();
         }
 
@@ -21,5 +26,18 @@ namespace TodoApi
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .Build();
+
+        private static async Task ProcessRepositories()
+        {
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+            client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
+
+            var stringTask = client.GetStringAsync("https://api.github.com/orgs/dotnet/repos");
+
+            var msg = await stringTask;
+            Console.Write(msg);
+        }
     }
 }
